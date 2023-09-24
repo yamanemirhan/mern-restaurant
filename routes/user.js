@@ -1,16 +1,13 @@
 const express = require("express");
 const {
-  deleteUser,
-  editDetails,
-  changePassword,
   getUser,
-  addOrder,
-  favProduct,
-  getCart,
-  addComment,
+  likeProduct,
+  editDetails,
+  getRestaurant,
+  getPopularRestaurants,
 } = require("../controllers/user");
 const { getAccessToRoute } = require("../middlewares/authorization/auth");
-const profileImageUpload = require("../middlewares/libraries/profileImageUpload");
+const imageUpload = require("../middlewares/libraries/imageUpload");
 const {
   checkProductExist,
 } = require("../middlewares/database/databaseErrorHelpers");
@@ -18,22 +15,13 @@ const {
 const router = express.Router();
 
 router.get("/profile", getAccessToRoute, getUser);
-router.post("/cart", getCart);
+router.put("/like/:id", [getAccessToRoute, checkProductExist], likeProduct);
 router.put(
   "/edit",
-  [getAccessToRoute, profileImageUpload.single("profile_image")],
+  [getAccessToRoute, imageUpload.single("profile_image")],
   editDetails
 );
-router.put(
-  "/:productId/fav",
-  [getAccessToRoute, checkProductExist],
-  favProduct
-);
-router.put("/addOrder", getAccessToRoute, addOrder);
-router.put("/changePassword", getAccessToRoute, changePassword);
-
-router.delete("/deleteAccount", getAccessToRoute, deleteUser);
-
-router.post("/addComment/:productId", getAccessToRoute, addComment);
+router.get("/restaurant/:id", getRestaurant);
+router.get("/restaurants/popular", getPopularRestaurants);
 
 module.exports = router;

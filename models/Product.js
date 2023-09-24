@@ -7,6 +7,11 @@ const ProductSchema = new Schema(
       type: String,
       required: [true, "Please provide a name"],
     },
+    ingredients: [
+      {
+        type: String,
+      },
+    ],
     seller: {
       id: {
         type: mongoose.Schema.ObjectId,
@@ -15,12 +20,19 @@ const ProductSchema = new Schema(
       company: {
         type: String,
       },
-      about: {
-        type: String,
-      },
       profilePicture: {
         type: String,
         default: "",
+      },
+      products: [
+        {
+          type: mongoose.Schema.ObjectId,
+          ref: "Product",
+        },
+      ],
+      productCount: {
+        type: Number,
+        default: 0,
       },
     },
     img: {
@@ -30,13 +42,8 @@ const ProductSchema = new Schema(
     category: {
       type: String,
       required: true,
-      enum: ["Phone", "Computer", "Laptop", "Tablet"],
     },
     price: {
-      type: Number,
-      required: true,
-    },
-    stock: {
       type: Number,
       required: true,
     },
@@ -44,11 +51,7 @@ const ProductSchema = new Schema(
       type: String,
       required: true,
     },
-    detail: {
-      type: String,
-      required: true,
-    },
-    favs: [
+    likes: [
       {
         type: mongoose.Schema.ObjectId,
         ref: "User",

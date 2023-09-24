@@ -47,9 +47,6 @@ const UserSchema = new Schema(
         type: String,
         maxlength: [30, "Please provide a company with maximum 30 characters"],
       },
-      about: {
-        type: String,
-      },
       products: [
         {
           type: mongoose.Schema.ObjectId,
@@ -57,51 +54,20 @@ const UserSchema = new Schema(
         },
       ],
     },
-    favProducts: [
+    likedProducts: [
       {
         type: mongoose.Schema.ObjectId,
         ref: "Product",
       },
     ],
-    orders: [
-      {
-        productId: String,
-        name: String,
-        price: Number,
-        img: String,
-        unit: Number,
-        seller: Object,
-        createdAt: Date,
-        star: Number,
-        comment: String,
-      },
-    ],
-    phoneNumber: {
+    likedProductsCount: {
       type: Number,
+      default: 0,
     },
-    addresses: [
+    incomingOrders: [
       {
-        title: {
-          type: String,
-        },
-        neighborhood: {
-          type: String,
-        },
-        district: {
-          type: String,
-        },
-        city: {
-          type: String,
-        },
-        street: {
-          type: String,
-        },
-        buildingNumber: {
-          type: String,
-        },
-        apartmentNumber: {
-          type: String,
-        },
+        type: mongoose.Schema.ObjectId,
+        ref: "Order",
       },
     ],
   },

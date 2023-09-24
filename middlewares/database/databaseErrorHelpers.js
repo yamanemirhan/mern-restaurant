@@ -23,7 +23,7 @@ const checkSellerExists = asyncErrorWrapper(async (req, res, next) => {
 });
 
 const checkProductExist = asyncErrorWrapper(async (req, res, next) => {
-  const id = req.params.productId;
+  const id = req.params.id;
   const product = await Product.findById(id);
   if (!product) {
     return next(new CustomError("Product Not Found!", 400));
@@ -41,7 +41,7 @@ const checkCommentExist = asyncErrorWrapper(async (req, res, next) => {
 });
 
 const checkHasProduct = asyncErrorWrapper(async (req, res, next) => {
-  const id = req.params.productId;
+  const id = req.params.id;
   const product = await Product.findById(id);
   if (req.user.role == "admin" || product.seller.id == req.user.id) {
     return next();

@@ -5,7 +5,10 @@ const CommentSchema = new Schema(
   {
     text: {
       type: String,
-      maxlength: [300, "Please provide a text with maximum 300 characters"],
+      maxlength: [500, "Please provide a text with maximum 500 characters"],
+    },
+    star: {
+      type: Number,
     },
     user: {
       id: {
@@ -24,9 +27,6 @@ const CommentSchema = new Schema(
         type: mongoose.Schema.ObjectId,
         ref: "Product",
       },
-    },
-    star: {
-      type: Number,
     },
   },
   { timestamps: true }

@@ -8,7 +8,6 @@ const {
 } = require("../helpers/input/inputHelpers");
 
 const register = asyncErrorWrapper(async (req, res, next) => {
-  const infos = req.body;
   const email = req.body.email;
   try {
     const existingUser = await User.findOne({
@@ -19,21 +18,7 @@ const register = asyncErrorWrapper(async (req, res, next) => {
       return next(new CustomError("This email is already in use", 400));
     }
 
-    let user;
-    if (req.body.company) {
-      user = await User.create({
-        ...infos,
-        seller: {
-          company: req.body.company,
-          about: req.body.about,
-        },
-        role: "seller",
-      });
-    } else {
-      user = await User.create({
-        ...infos,
-      });
-    }
+    const user = await User.create(req.body);
 
     await user.save();
 
@@ -66,7 +51,7 @@ const logout = asyncErrorWrapper(async (req, res, next) => {
       secure: true,
     })
     .status(200)
-    .json({ message: "Logged out successfully" });
+    .json({ success: true, message: "Logged out successfully" });
 });
 
 module.exports = {

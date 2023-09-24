@@ -11,7 +11,7 @@ const sendJwtToClient = (user, res) => {
     })
     .json({
       success: true,
-      data: "gulih0",
+      data: "restaurant",
       message: "Successfully login",
     });
 };

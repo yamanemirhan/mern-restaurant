@@ -1,8 +1,9 @@
 const express = require("express");
 const {
   getAllProducts,
-  getSingleProduct,
-  getFavProducts,
+  getProduct,
+  getLikedProducts,
+  getPopularProducts,
 } = require("../controllers/product");
 const { getAccessToRoute } = require("../middlewares/authorization/auth");
 const {
@@ -11,9 +12,8 @@ const {
 const router = express.Router();
 
 router.get("/getAllProducts", getAllProducts);
-
-router.get("/detail/:productId", checkProductExist, getSingleProduct);
-
-router.get("/getFavProducts", getAccessToRoute, getFavProducts);
+router.get("/detail/:id", checkProductExist, getProduct);
+router.get("/liked", getAccessToRoute, getLikedProducts);
+router.get("/popular", getPopularProducts);
 
 module.exports = router;

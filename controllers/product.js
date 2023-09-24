@@ -19,7 +19,7 @@ const getAllProducts = asyncErrorWrapper(async (req, res, next) => {
     });
 
     if (req.query.categories) {
-      const categories = req.query.categories;
+      const categories = JSON.parse(req.query.categories);
       query = query.where("category").in(categories);
     }
 
@@ -44,7 +44,7 @@ const getAllProducts = asyncErrorWrapper(async (req, res, next) => {
     };
 
     if (req.query.categories) {
-      const categories = req.query.categories;
+      const categories = JSON.parse(req.query.categories);
       totalQuery.category = { $in: categories };
     }
 
@@ -63,6 +63,7 @@ const getAllProducts = asyncErrorWrapper(async (req, res, next) => {
     }
 
     const total = await Product.countDocuments(totalQuery);
+
     const paginationResult = await paginationHelper(total, query, req);
     query = paginationResult.query;
     const pagination = paginationResult.pagination;
@@ -72,7 +73,7 @@ const getAllProducts = asyncErrorWrapper(async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        count: total,
+        count: queryResults.length,
         pagination: pagination,
         products: queryResults,
       },
@@ -83,9 +84,9 @@ const getAllProducts = asyncErrorWrapper(async (req, res, next) => {
   }
 });
 
-const getSingleProduct = async (req, res, next) => {
+const getProduct = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.productId);
+    const product = await Product.findById(req.params.id);
 
     const commentIds = product.comments;
     const comments = await Comment.find({ _id: { $in: commentIds } });
@@ -102,83 +103,34 @@ const getSingleProduct = async (req, res, next) => {
   }
 };
 
-const getFavProducts = asyncErrorWrapper(async (req, res, next) => {
+const getLikedProducts = asyncErrorWrapper(async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
+    let likedProducts = [];
+    await Promise.all(
+      user.likedProducts.map(async (productId) => {
+        const likedProduct = await Product.findOne({
+          _id: productId,
+        }).select("-seller.id");
+        !likedProduct || likedProducts.push(likedProduct);
+      })
+    );
+    res.status(200).json({
+      success: true,
+      data: likedProducts,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 
-    let query = Product.find({
-      _id: { $in: user.favProducts },
-    }).select("-seller.id -favs");
-
-    if (req.query.search) {
-      query = query.or([
-        { name: { $regex: req.query.search, $options: "i" } },
-        { category: { $regex: req.query.search, $options: "i" } },
-        { desc: { $regex: req.query.search, $options: "i" } },
-        { "seller.company": { $regex: req.query.search, $options: "i" } },
-      ]);
-    }
-
-    if (req.query.categories) {
-      const categories = req.query.categories;
-      query = query.where("category").in(categories);
-    }
-
-    if (req.query.minPrice || req.query.maxPrice) {
-      const priceFilter = {};
-
-      if (req.query.minPrice) {
-        priceFilter.$gte = parseInt(req.query.minPrice);
-      }
-
-      if (req.query.maxPrice) {
-        priceFilter.$lte = parseInt(req.query.maxPrice);
-      }
-
-      query = query.where("price", priceFilter);
-    }
-
-    query = productSortHelper(query, req);
-
-    const totalQuery = {
-      name: { $regex: req.query.search || "", $options: "i" },
-    };
-
-    if (req.query.categories) {
-      const categories = req.query.categories;
-      totalQuery.category = { $in: categories };
-    }
-
-    if (req.query.minPrice || req.query.maxPrice) {
-      const priceFilter = {};
-
-      if (req.query.minPrice) {
-        priceFilter.$gte = parseInt(req.query.minPrice);
-      }
-
-      if (req.query.maxPrice) {
-        priceFilter.$lte = parseInt(req.query.maxPrice);
-      }
-
-      totalQuery.price = priceFilter;
-    }
-
-    const total = await Product.find({
-      _id: { $in: user.favProducts },
-    }).countDocuments(totalQuery);
-    const paginationResult = await paginationHelper(total, query, req);
-    query = paginationResult.query;
-    const pagination = paginationResult.pagination;
-
-    const queryResults = await query;
+const getPopularProducts = asyncErrorWrapper(async (req, res, next) => {
+  try {
+    const popularProducts = await Product.find().sort({ star: -1 }).limit(8);
 
     res.status(200).json({
       success: true,
-      data: {
-        count: total,
-        pagination: pagination,
-        products: queryResults,
-      },
+      data: popularProducts,
     });
   } catch (error) {
     res.status(500).json(error);
@@ -187,6 +139,7 @@ const getFavProducts = asyncErrorWrapper(async (req, res, next) => {
 
 module.exports = {
   getAllProducts,
-  getSingleProduct,
-  getFavProducts,
+  getProduct,
+  getLikedProducts,
+  getPopularProducts,
 };
