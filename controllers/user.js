@@ -88,17 +88,6 @@ const editDetails = asyncErrorWrapper(async (req, res, next) => {
       );
     }
 
-    const user_ = await User.findById(req.user.id);
-    const userComments = await Comment.find({ "user.id": req.user.id });
-    const fullName = user_.firstName[0] + "**** " + user_.lastName[0] + "****";
-    console.log(user_);
-    console.log("comments: ", userComments);
-    for (const comment of userComments) {
-      comment.user.profilePicture = user_.profilePicture;
-      comment.user.fullName = fullName;
-      await comment.save();
-    }
-    
     await Product.updateMany(
       { "seller.id": req.user.id },
       { $set: { "seller.profilePicture": req.savedImage } }
@@ -120,6 +109,14 @@ const editDetails = asyncErrorWrapper(async (req, res, next) => {
         runValidators: true,
       }
     ).select("-_id");
+
+    const userComments = await Comment.find({ "user.id": req.user.id });
+    const fullName = user.firstName[0] + "**** " + user.lastName[0] + "****";
+    for (const comment of userComments) {
+      comment.user.profilePicture = user.profilePicture;
+      comment.user.fullName = fullName;
+      await comment.save();
+    }
 
     res.status(200).json({
       success: true,
