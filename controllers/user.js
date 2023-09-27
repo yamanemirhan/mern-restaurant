@@ -88,11 +88,11 @@ const editDetails = asyncErrorWrapper(async (req, res, next) => {
       );
     }
 
- const user_ = await User.findById(req.user.id);
-    const userComments = await Comment.find({ userId: req.user.id });
+    const user_ = await User.findById(req.user.id);
+    const userComments = await Comment.find({ "user.id": req.user.id });
     const fullName = user_.firstName[0] + "**** " + user_.lastName[0] + "****";
     for (const comment of userComments) {
-      comment.user.profilePicture = user.profilePicture;
+      comment.user.profilePicture = user_.profilePicture;
       comment.user.fullName = fullName;
       await comment.save();
     }
