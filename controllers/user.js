@@ -1,6 +1,7 @@
 const asyncErrorWrapper = require("express-async-handler");
 const User = require("../models/User");
 const Product = require("../models/Product");
+const Comment = require("../models/Comment");
 
 const getUser = asyncErrorWrapper(async (req, res, next) => {
   const { id } = req.user;
@@ -87,6 +88,15 @@ const editDetails = asyncErrorWrapper(async (req, res, next) => {
       );
     }
 
+  const userComments = await Comment.find({ userId: req.user.id });
+    const fullName =
+      information.firstName[0] + "**** " + information.lastName[0] + "****";
+    for (const comment of userComments) {
+      comment.profilePicture = req.savedImage;
+      comment.fullName = fullName;
+      await comment.save();
+    }
+    
     await Product.updateMany(
       { "seller.id": req.user.id },
       { $set: { "seller.profilePicture": req.savedImage } }
