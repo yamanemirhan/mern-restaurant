@@ -16,7 +16,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://mern-restaurant.netlify.app",
+    origin: ["https://mern-restaurant.netlify.app","http://localhost:5173"],
     credentials: true,
   })
 );
